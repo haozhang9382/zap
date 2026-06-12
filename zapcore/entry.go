@@ -228,16 +228,10 @@ func (ce *CheckedEntry) reset() {
 	ce.Entry = Entry{}
 	ce.ErrorOutput = nil
 	ce.dirty = false
-	ce.after = nil
 	for i := range ce.cores {
-		// don't keep references to cores
 		ce.cores[i] = nil
 	}
 	ce.cores = ce.cores[:0]
-	for i := range ce.before {
-		ce.before[i] = nil
-	}
-	ce.before = ce.before[:0]
 }
 
 // Write writes the entry to the stored Cores, returns any errors, and returns
@@ -285,11 +279,11 @@ func (ce *CheckedEntry) Write(fields ...Field) {
 		_ = ce.ErrorOutput.Sync() // ignore error
 	}
 
+	putCheckedEntry(ce)
 	hook := ce.after
 	if hook != nil {
 		hook.OnWrite(ce, fields)
 	}
-	putCheckedEntry(ce)
 }
 
 // AddCore adds a Core that has agreed to log this CheckedEntry. It's intended to be
